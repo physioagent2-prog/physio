@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+supabase
+python-dotenv
+pydantic
+pydantic-settings
+python-multipart
+PyJWT[crypto]
+passlib[bcrypt]
+cors
+boto3
+openai-whisper
+soundfile
+pydub

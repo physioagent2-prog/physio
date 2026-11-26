@@ -1,0 +1,15 @@
+.env
+.venv/
+venv/
+__pycache__/
+node_modules/
+www/
+android-app/app/build/
+android-app/build/
+android-app/.gradle/
+android-app/local.properties
+*.apk
+.idea/
+.DS_Store
+*serviceAccount*.json
+*adminsdk*.json

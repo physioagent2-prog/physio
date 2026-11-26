@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1B3A5C">
+    <title>Move Better Physiotherapy Clinic - Phase 2</title>
+    <link rel="stylesheet" href="css/style.css?v=10">
+    <link rel="stylesheet" href="css/scheduler-fix.css?v=10">
+    <link rel="stylesheet" href="css/android.css?v=1">
+</head>
+
+<body>
+
+    <!-- AUTHENTICATION SECTION -->
+    <div id="auth-section" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <h2 id="auth-title">Welcome Back</h2>
+            <p id="auth-subtitle">Login to access your clinic dashboard</p>
+            <form id="auth-form">
+                <label>Email Address</label>
+                <input type="email" id="auth-email" placeholder="doctor@movebetter.com" required>
+                <label>Password</label>
+                <input type="password" id="auth-password" placeholder="••••••••" required>
+                <div id="signup-fields" style="display: none;">
+                    <div class="form-group">
+                        <label>Clinic Access Key</label>
+                        <input type="text" placeholder="Enter clinic invite code..." disabled value="MOVE-BETTER-2024">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <span id="auth-btn-text">Login</span>
+                </button>
+            </form>
+            <div class="auth-footer">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <span class="auth-link" id="auth-switch-link">Sign Up</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION SECTION -->
+    <div id="app-section" class="app" style="display: none;">
+        <div class="header">
+            <div class="logo-box">MB<br>PT</div>
+            <div class="header-info">
+                <h1>Move Better Physiotherapy</h1>
+                <p>Dr. Kajal J. Patel · Shop 204, Brahma Business Park, Pune</p>
+            </div>
+            <div id="user-profile" style="margin-left: auto; text-align: right;">
+                <div style="font-size: 13px; font-weight: 500; color: #fff;" id="current-user-name">Dr. Kajal J. Patel</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.7); cursor: pointer;" onclick="API.logout()">
+                    Logout</div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="show('dashboard',this)">Dashboard</button>
+            <button class="nav-btn" onclick="show('register',this)">Registration</button>
+            <button class="nav-btn" onclick="show('assessment',this)">Assessment</button>
+            <button class="nav-btn" onclick="show('session-design',this)">Session Design</button>
+            <button class="nav-btn" onclick="show('treatment-plan',this)">Treatment Plan</button>
+            <button class="nav-btn" onclick="show('exercise',this)">Exercises</button>
+            <button class="nav-btn" onclick="show('appointments',this)">Appointments</button>
+            <button class="nav-btn" onclick="show('progress',this)">Progress</button>
+            <button id="admin-nav-tab" class="nav-btn" onclick="show('admin',this)">🛡
+                Admin</button>
+        </div>
+
+        <div class="content">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="section active">
+                <div class="msg" id="dashboard-welcome">Welcome back! Fetching your clinic overview...</div>
+                <div class="grid4" style="margin-bottom:16px">
+                    <div class="stat-card">
+                        <div class="stat-num" id="stat-patients">--</div>
+                        <div class="stat-lbl">Active Patients</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--color-warning);">
+                        <div class="stat-num" id="stat-pending">--</div>
+                        <div class="stat-lbl">Pending Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="stat-appointments">--</div>
+                        <div class="stat-lbl">Today's Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="stat-sessions">--</div>
+                        <div class="stat-lbl">Sessions (Week)</div>
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="card-white" id="dashboard-schedule-card" style="padding: 24px;">
+                        <div class="b-header-top">
+                            <div class="b-title">
+                                <h2>Appointments Overview</h2>
+                                <p>Manage today’s and upcoming patient sessions efficiently.</p>
+                            </div>
+                            <div class="b-filters">
+                                <button class="b-filter-btn active" id="bf-today" onclick="setBoardFilter('today', this)">Today</button>
+                                <button class="b-filter-btn" id="bf-tomorrow" onclick="setBoardFilter('tomorrow', this)">Tomorrow</button>
+                                <button class="b-filter-btn" id="bf-week" onclick="setBoardFilter('week', this)">This Week</button>
+                                <button class="b-filter-btn" id="bf-pick" onclick="document.getElementById('board-date-picker').showPicker ? document.getElementById('board-date-picker').showPicker() : document.getElementById('board-date-picker').click()">&#128197; Pick Date</button>
+                                <input type="date" id="board-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="setBoardFilterDate(this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="b-mini-stats">
+                            <div class="m-stat"><div class="m-stat-val" id="ms-total">0</div><div class="m-stat-lbl">Total</div></div>
+                            <div class="m-stat" style="border-bottom: 2px solid #639922;"><div class="m-stat-val" id="ms-confirmed">0</div><div class="m-stat-lbl">Confirmed</div></div>
+                            <div class="m-stat" style="border-bottom: 2px solid #E67E22;"><div class="m-stat-val" id="ms-pending">0</div><div class="m-stat-lbl">Pending</div></div>
+                            <div class="m-stat" style="border-bottom: 2px solid var(--mb-cyan);"><div class="m-stat-val" id="ms-completed">0</div><div class="m-stat-lbl">Completed</div></div>
+                        </div>
+
+                        <div class="b-list" id="appointments-board-list">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                    <!-- PENDING APPOINTMENTS PANEL -->
+                    <div class="card-white" style="padding: 24px; display: flex; flex-direction: column; max-height: 520px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <h2 style="font-size: 16px; font-weight: 600; margin: 0;">Pending Appointments</h2>
+                                <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0;">Patients awaiting scheduling</p>
+                            </div>
+                            <div id="pending-count-badge" style="background: linear-gradient(135deg, #E67E22, #F39C12); color: #fff; font-size: 13px; font-weight: 700; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</div>
+                        </div>
+                        <div id="pending-patients-list" style="flex: 1; overflow-y: auto; padding-right: 4px;">
+                            <div style="text-align: center; color: var(--color-text-secondary); font-size: 12px; padding: 30px 0;">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REGISTRATION -->
+            <div id="register" class="section">
+                <div class="section-title">Patient registration</div>
+                <form id="patient-reg-form">
+                    <div class="grid2">
+                        <!-- COLUMN 1: PERSONAL INFORMATION -->
+                        <div class="card-white" style="padding: 24px;">
+                            <div style="font-size:14px; font-weight:600; color:var(--mb-navy); margin-bottom:16px;">Personal information</div>
+                            
+                            <label>Full name</label>
+                            <input type="text" id="reg-name" placeholder="Patient full name" required>
+                            
+                            <label>Date of birth</label>
+                            <input type="date" id="reg-dob">
+                            
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                                <div>
+                                    <label>Gender</label>
+                                    <select id="reg-gender">
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Contact number</label>
+                                    <input type="tel" id="reg-phone" placeholder="+91 XXXXXXXXXX" required>
+                                </div>
+                            </div>
+                            
+                            <label>Address</label>
+                            <input type="text" id="reg-address" placeholder="Full address">
+                            
+                            <label>Occupation</label>
+                            <input type="text" id="reg-occupation" placeholder="Occupation">
+                        </div>
+
+                        <!-- COLUMN 2: MEDICAL HISTORY -->
+                        <div class="card-white" style="padding: 24px;">
+                            <div style="font-size:14px; font-weight:600; color:var(--mb-navy); margin-bottom:16px;">Medical history</div>
+                            
+                            <label style="font-size:12px; margin-bottom:10px; display:block; color:var(--color-text-secondary);">Known conditions (check all that apply)</label>
+                            <div class="conditions-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Hypertension"> Hypertension</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Diabetes"> Diabetes</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Heart Disease"> Heart Disease</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Asthma/COPD"> Asthma/COPD</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Arthritis"> Arthritis</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Neurological"> Neurological</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" value="Thyroid"> Thyroid</label>
+                                <label class="check-item"><input type="checkbox" name="reg-condition" id="reg-cond-other-check" value="Other"> Other</label>
+                            </div>
+                            
+                            <div id="reg-cond-other-wrapper" style="display:none; margin-bottom:20px;">
+                                <input type="text" id="reg-cond-other-val" placeholder="Please mention other condition" class="reg-input" style="font-size:12px; padding:10px; border: 1px solid #e1e8f0; border-radius: 8px;">
+                            </div>
+
+                            <label>Current medications</label>
+                            <input type="text" id="reg-meds" placeholder="List current medications">
+                            
+                            <label>Allergies</label>
+                            <input type="text" id="reg-allergies" placeholder="Any known allergies">
+                            
+                            <label style="margin-top:8px; display:block;">Previous injuries or surgeries</label>
+                            <textarea id="reg-injuries" placeholder="Describe any previous injuries or operations" style="width:100%; min-height:100px; padding:12px; border-radius:10px; border:1px solid var(--color-border-tertiary); font-size:13px; font-family:inherit; transition: border-color 0.2s;"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- BOTTOM CENTER SUBMIT -->
+                    <div style="display: flex; justify-content: center; margin-top: 32px; padding-bottom: 20px;">
+                        <button type="submit" class="btn btn-primary" style="padding: 14px 60px; font-size: 15px; font-weight: 700; border-radius: 50px; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2), 0 4px 6px rgba(0,0,0,0.1); transform: translateY(0); transition: all 0.2s ease;">
+                            Schedule Appointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ASSESSMENT -->
+            <div id="assessment" class="section">
+                <div class="assessment-header-banner" style="background: rgba(41, 128, 185, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(41, 128, 185, 0.1);">
+                    <div style="font-size: 16px; font-weight: 600; color: #2c3e50;">Physical therapy assessment</div>
+                    <div style="font-size: 12px; color: #7f8c8d; margin-top: 4px;">Select a patient and choose your assessment methodology below.</div>
+                </div>
+
+                <!-- STEP 1: PATIENT IDENTIFICATION (Always Visible) -->
+                <div class="assessment-main-header card-white" style="padding: 24px; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: flex-end;">
+                        <!-- PATIENT & SESSION SELECT -->
+                        <div class="form-group" style="position: relative; margin-bottom: 0;">
+                            <label class="as-step-indicator"><span>1.</span> Select Patient & Session</label>
+                            <div style="display: grid; grid-template-columns: 1fr 110px; gap: 10px;">
+                                <div class="searchable-select-wrapper">
+                                    <input type="text" id="assessment-patient-search" placeholder="Type name or phone to search..." class="reg-input" autocomplete="off" style="padding: 12px 16px; border-radius: 8px;">
+                                    <ul id="assessment-search-results" class="search-results-list"></ul>
+                                    <input type="hidden" id="assessment-patient-id">
+                                </div>
+                                <div>
+                                    <input type="number" id="assessment-session-select" list="assessment-sessions-list" class="reg-input" style="padding: 12px; border-radius: 8px; font-weight: 600;" placeholder="Sess #">
+                                    <datalist id="assessment-sessions-list"></datalist>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: METHODOLOGY SELECT (Hidden Initially) -->
+                        <div id="as-step-2-container" class="form-group" style="margin-bottom: 0; display: none;">
+                            <label class="as-step-indicator"><span>2.</span> Assessment Method</label>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <div id="mode-btn-manual" class="mode-option-v2" onclick="selectAssessmentMode('manual')">
+                                    <span id="dot-manual" class="status-dot"></span>
+                                    ✏️ Fill form manually
+                                </div>
+                                <div id="mode-btn-audio" class="mode-option-v2" onclick="selectAssessmentMode('audio')">
+                                    <span id="dot-audio" class="status-dot"></span>
+                                    🎙️ Via audio script
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="as-main-content-area" class="assessment-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div class="assessment-col" id="as-manual-col-left" style="position: relative; transition: all 0.3s ease;">
+                        <h4 style="font-size: 14px; margin-bottom:15px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Chief complaint & pain</h4>
+                        
+                        <div class="form-group">
+                            <label>Chief complaint</label>
+                            <textarea id="as-complaint" placeholder="Describe the primary complaint in patient's words" class="reg-input" style="height: 100px; padding: 12px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Onset of symptoms</label>
+                            <div class="radio-group" style="display:flex; flex-wrap: wrap; gap: 15px;">
+                                <label class="radio-item"><input type="radio" name="as-onset" value="Sudden" onchange="toggleAsOther('as-onset-other-wrapper', false)"> Sudden</label>
+                                <label class="radio-item"><input type="radio" name="as-onset" value="Gradual" onchange="toggleAsOther('as-onset-other-wrapper', false)"> Gradual</label>
+                                <label class="radio-item"><input type="radio" name="as-onset" value="Post-trauma" onchange="toggleAsOther('as-onset-other-wrapper', false)"> Post-trauma</label>
+                                <label class="radio-item"><input type="radio" name="as-onset" id="as-onset-other-radio" value="Other" onchange="toggleAsOther('as-onset-other-wrapper', true)"> Other</label>
+                            </div>
+                            <div id="as-onset-other-wrapper" style="display:none; margin-top:10px;">
+                                <input type="text" id="as-onset-other-val" placeholder="Briefly describe onset..." class="reg-input" style="font-size:12px; padding:8px;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pain intensity (0–10) — <span id="pain-val-display" style="color:var(--color-primary); font-weight:700;">5/10</span></label>
+                            <input type="range" id="as-pain-slider" min="0" max="10" value="5" class="modern-slider" oninput="document.getElementById('pain-val-display').textContent = this.value + '/10'">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pain type</label>
+                            <div class="check-grid-mini" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                                <label class="check-item-mini"><input type="checkbox" name="as-pain-type" value="Sharp"> Sharp</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-pain-type" value="Dull"> Dull</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-pain-type" value="Burning"> Burning</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-pain-type" value="Throbbing"> Throbbing</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-pain-type" value="Radiating"> Radiating</label>
+                                <label class="check-item-mini"><input type="checkbox" id="as-pain-other-check" name="as-pain-type" value="Other" onchange="toggleAsOther('as-pain-other-wrapper', this.checked)"> Other</label>
+                            </div>
+                            <div id="as-pain-other-wrapper" style="display:none; margin-top:10px;">
+                                <input type="text" id="as-pain-other-val" placeholder="Briefly describe pain type..." class="reg-input" style="font-size:12px; padding:8px;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Associated symptoms</label>
+                            <div class="check-grid-mini" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                                <label class="check-item-mini"><input type="checkbox" name="as-symptoms" value="Tingling"> Tingling</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-symptoms" value="Numbness"> Numbness</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-symptoms" value="Weakness"> Weakness</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-symptoms" value="Swelling"> Swelling</label>
+                                <label class="check-item-mini"><input type="checkbox" id="as-symptoms-other-check" name="as-symptoms" value="Other" onchange="toggleAsOther('as-symptoms-other-wrapper', this.checked)"> Other</label>
+                            </div>
+                            <div id="as-symptoms-other-wrapper" style="display:none; margin-top:10px;">
+                                <input type="text" id="as-symptoms-other-val" placeholder="Briefly describe other symptoms..." class="reg-input" style="font-size:12px; padding:8px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="assessment-col" id="as-manual-col-right" style="position: relative; transition: all 0.3s ease;">
+                        <h4 style="font-size: 14px; margin-bottom:15px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Range of motion & posture</h4>
+                        
+                        <div class="form-group">
+                            <label>Posture observation</label>
+                            <div class="check-grid-mini" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px;">
+                                <label class="check-item-mini"><input type="checkbox" name="as-posture" value="Normal"> Normal</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-posture" value="Forward head"> Forward head</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-posture" value="Rounded shoulders"> Rounded shoulders</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-posture" value="Kyphosis"> Kyphosis</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-posture" value="Pelvic tilt"> Pelvic tilt</label>
+                                <label class="check-item-mini"><input type="checkbox" id="as-posture-other-check" name="as-posture" value="Other" onchange="toggleAsOther('as-posture-other-wrapper', this.checked)"> Other</label>
+                            </div>
+                            <div id="as-posture-other-wrapper" style="display:none; margin-top:10px;">
+                                <input type="text" id="as-posture-other-val" placeholder="Briefly describe posture findings..." class="reg-input" style="font-size:12px; padding:8px;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <label style="margin-bottom:0;">ROM assessment</label>
+                                <button type="button" class="add-row-btn" onclick="addAsROMRow()" style="font-size:11px; background:none; border:1px solid #ddd; color:var(--color-primary); padding:2px 8px; border-radius:4px; cursor:pointer;">+ Add Joint</button>
+                            </div>
+                            <div class="rom-table-wrapper" style="background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+                                <table class="rom-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                    <thead style="background: #fdfdfd; border-bottom: 1px solid #eee;">
+                                        <tr>
+                                            <th style="padding: 10px; text-align: left;">Joint</th>
+                                            <th style="padding: 10px; text-align: center;">Active ROM</th>
+                                            <th style="padding: 10px; text-align: center;">Passive ROM</th>
+                                            <th style="padding: 10px; text-align: center;">Pain</th>
+                                            <th style="padding: 10px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="as-rom-tbody">
+                                        <!-- Fixed Rows -->
+                                        <tr class="rom-fixed-row" data-joint="Neck">
+                                            <td style="padding: 10px; font-weight:600;">Neck</td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-active" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-passive" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;">
+                                                <select class="rom-pain" style="font-size: 11px; padding: 4px; border: 1px solid #eee; border-radius:4px;">
+                                                    <option>No</option><option>Mild</option><option>Mod</option><option>Severe</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="rom-fixed-row" data-joint="Shoulder">
+                                            <td style="padding: 10px; font-weight:600;">Shoulder</td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-active" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-passive" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;">
+                                                <select class="rom-pain" style="font-size: 11px; padding: 4px; border: 1px solid #eee; border-radius:4px;">
+                                                    <option>No</option><option>Mild</option><option>Mod</option><option>Severe</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="rom-fixed-row" data-joint="Hip">
+                                            <td style="padding: 10px; font-weight:600;">Hip</td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-active" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-passive" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;">
+                                                <select class="rom-pain" style="font-size: 11px; padding: 4px; border: 1px solid #eee; border-radius:4px;">
+                                                    <option>No</option><option>Mild</option><option>Mod</option><option>Severe</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="rom-fixed-row" data-joint="Knee">
+                                            <td style="padding: 10px; font-weight:600;">Knee</td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-active" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;"><input type="text" class="rom-passive" placeholder="°" style="width: 50px; text-align:center; padding: 4px; border: 1px solid #eee; border-radius:4px;"></td>
+                                            <td style="padding: 10px;">
+                                                <select class="rom-pain" style="font-size: 11px; padding: 4px; border: 1px solid #eee; border-radius:4px;">
+                                                    <option>No</option><option>Mild</option><option>Mod</option><option>Severe</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Special tests used</label>
+                            <input type="text" id="as-special-tests" placeholder="e.g. Lasegue's, McMurray's, Neer's..." class="reg-input">
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <label style="margin-bottom:0;">Functional limitations</label>
+                                <button type="button" class="add-row-btn" onclick="addAsFunctionalRow()" style="font-size:11px; background:none; border:1px solid #ddd; color:var(--color-primary); padding:2px 8px; border-radius:4px; cursor:pointer;">+ Add Record</button>
+                            </div>
+                            <div id="as-functional-group" class="check-grid-mini" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;">
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Walking"> Walking</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Sitting"> Sitting</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Standing"> Standing</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Bending"> Bending</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Lifting"> Lifting</label>
+                                <label class="check-item-mini"><input type="checkbox" name="as-functional" value="Sleeping"> Sleeping</label>
+                                <label class="check-item-mini"><input type="checkbox" id="as-func-other-check" name="as-functional" value="Other" onchange="toggleAsOther('as-func-other-wrapper', this.checked)"> Other</label>
+                            </div>
+                            <div id="as-custom-functional-container" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;"></div>
+                            <div id="as-func-other-wrapper" style="display:none; margin-top:10px;">
+                                <input type="text" id="as-func-other-val" placeholder="Briefly describe other limitations..." class="reg-input" style="font-size:12px; padding:8px;">
+                            </div>
+                        </div>
+
+                        <div class="assessment-footer" style="margin-top: 40px; display:flex; align-items:center; gap: 20px;">
+                            <button class="btn btn-primary" onclick="saveAssessment()" style="padding: 14px 30px; font-size: 14px; font-weight: 700;">Save assessment</button>
+                            <button type="button" class="btn btn-primary" onclick="generateProfessionalPDF()" style="padding: 14px 30px; font-size: 14px; font-weight: 700;">Print form</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SESSION DESIGN BUILDER (Formerly Treatment Plan Builder) -->
+            <div id="session-design" class="section">
+                <div class="treatment-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <div class="section-title" style="margin-bottom:0;">Session Design Builder</div>
+                </div>
+
+                <!-- TWO-COLUMN BUILDER -->
+                <div class="tp-builder-grid">
+
+                    <!-- LEFT COLUMN: Goals & Frequency -->
+                    <div class="tp-card">
+                        <h4 class="tp-section-heading">Goals &amp; frequency</h4>
+
+                        <div class="form-group" style="position:relative;">
+                            <label>Patient & Session</label>
+                            <div style="display: grid; grid-template-columns: 1fr 110px; gap: 10px;">
+                                <div class="searchable-select-wrapper">
+                                    <input type="text" id="tp-patient-search" placeholder="Type name to search..." class="reg-input" autocomplete="off">
+                                    <ul id="tp-search-results" class="search-results-list"></ul>
+                                    <input type="hidden" id="tp-patient-id">
+                                    <input type="hidden" id="tp-patient-condition">
+                                </div>
+                                <div>
+                                    <input type="number" id="tp-session-select" list="tp-sessions-list" class="reg-input" style="font-weight: 600;" placeholder="Sess #">
+                                    <datalist id="tp-sessions-list"></datalist>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Short-term goals <span style="font-weight:400;color:#999;">(4 weeks)</span></label>
+                            <textarea id="tp-short-goals" class="reg-input tp-textarea" placeholder="e.g. Reduce pain from 7/10 to 3/10, improve lumbar flexion by 20°"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Long-term goals <span style="font-weight:400;color:#999;">(8–12 weeks)</span></label>
+                            <textarea id="tp-long-goals" class="reg-input tp-textarea" placeholder="e.g. Return to full ADL, resume sports activity"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Treatment frequency</label>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <select id="tp-frequency" class="reg-input">
+                                    <option value="1x / week">1x / week</option>
+                                    <option value="2x / week">2x / week</option>
+                                    <option value="3x / week" selected>3x / week</option>
+                                    <option value="4x / week">4x / week</option>
+                                    <option value="5x / week">5x / week</option>
+                                    <option value="Daily">Daily</option>
+                                </select>
+                                <select id="tp-duration" class="reg-input">
+                                    <option value="2 weeks">2 weeks</option>
+                                    <option value="4 weeks">4 weeks</option>
+                                    <option value="6 weeks">6 weeks</option>
+                                    <option value="8 weeks" selected>8 weeks</option>
+                                    <option value="10 weeks">10 weeks</option>
+                                    <option value="12 weeks">12 weeks</option>
+                                    <option value="Ongoing">Ongoing</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Modalities & Notes -->
+                    <div class="tp-card">
+                        <h4 class="tp-section-heading">Treatment modalities</h4>
+
+                        <div class="form-group">
+                            <label>Select modalities to include</label>
+                            <div class="tp-modality-grid">
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Manual Therapy"> Manual Therapy</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Exercise Therapy"> Exercise Therapy</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="IFT / TENS"> IFT / TENS</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Ultrasound"> Ultrasound</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="TECAR Therapy"> TECAR Therapy</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Kinesio Taping"> Kinesio Taping</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Gait Training"> Gait Training</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Postural Correction"> Postural Correction</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Home Exercise Program"> Home Exercise Program</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Russian Current"> Russian Current</label>
+                                <label class="tp-modality-item"><input type="checkbox" name="tp-modality" value="Other" id="tp-modality-other-check" onchange="toggleModalityOther(this)"> Other</label>
+                            </div>
+                        </div>
+
+                        <div id="tp-modality-other-container" class="form-group" style="display:none; margin-top: -10px;">
+                            <label style="font-size: 11px; color: #718096;">Custom modality name</label>
+                            <input type="text" id="tp-modality-other-text" class="reg-input" style="padding: 8px 12px; font-size: 13px;" placeholder="Enter custom modality...">
+                        </div>
+
+                        <div class="form-group" style="margin-top:20px;">
+                            <label>Therapist notes</label>
+                            <textarea id="tp-therapist-notes" class="reg-input tp-textarea" style="height:120px;" placeholder="Special precautions, patient-specific adaptations..."></textarea>
+                        </div>
+
+                        <div class="tp-actions" style="display:flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                            <button class="btn btn-primary" onclick="saveTreatmentPlan('draft')" style="padding:12px 28px; background-color: var(--mb-mid); border-color: var(--mb-mid);">Save draft</button>
+                            <button class="btn btn-primary" id="tp-create-btn" onclick="saveTreatmentPlan('active')" style="padding:12px 28px;">Create treatment plan</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- NEW TREATMENT PLAN VIEWER PAGE -->
+            <div id="treatment-plan" class="section">
+                <div class="treatment-header" style="margin-bottom:32px;">
+                    <h1 class="premium-title">Treatment Plan Intelligence</h1>
+                    <p class="premium-subtitle">Generate evidence-informed personalized rehab plans using patient clinical data.</p>
+                </div>
+
+                <div class="viewer-container" style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+                    <!-- Left: Patient Select & Section Index -->
+                    <div class="viewer-sidebar">
+                        <div class="tp-card" style="padding: 20px; margin-bottom: 20px;">
+                            <div class="searchable-select-wrapper" style="margin-top: 15px;">
+                                <label style="font-size:12px; font-weight:600; color:var(--mb-navy); margin-bottom:8px;">Full Name</label>
+                                <input type="text" id="tpv-patient-search" placeholder="Enter patient name..." class="reg-input" autocomplete="off" style="padding: 12px 16px; border-radius: 8px;">
+                                
+                                <label style="font-size:12px; font-weight:600; color:var(--mb-navy); margin-top:12px; margin-bottom:8px;">Mobile Number</label>
+                                <input type="text" id="tpv-phone-search" placeholder="Enter contact number..." class="reg-input" style="padding: 12px 16px; border-radius: 8px;">
+                                
+                                <ul id="tpv-search-results" class="search-results-list" style="top: 100%; width: 100%;"></ul>
+                                <input type="hidden" id="tpv-patient-id">
+                            </div>
+
+                            <!-- Session Selection (New: Populated on Patient Select) -->
+                            <div id="tpv-session-selector" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
+                                <label style="font-size:11px; font-weight:700; color:var(--mb-navy); text-transform:uppercase;">Select Session</label>
+                                <div id="tpv-session-list" class="tpv-session-list" style="margin-top:8px;"></div>
+                            </div>
+
+                            <!-- Case Analysis Trigger (Hidden initially) -->
+                            <div id="tpv-prep-container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
+                                <button id="tpv-analyze-btn" class="btn btn-primary" onclick="initiateCaseAnalysis()" style="width:100%; justify-content:center; gap:8px;">
+                                    <span>🧠</span> Analyze Case & Prep Plan
+                                </button>
+                                <p style="font-size:11px; color:#64748b; margin-top:8px; text-align:center;">
+                                    AI will audit clinical gaps before plan generation.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section Index (populated after generation) -->
+                        <div id="tpv-section-index" style="display:none;">
+                            <h4 style="font-size:13px;font-weight:700;color:var(--mb-navy);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">📋 Plan Sections</h4>
+                            <div id="tpv-section-list" class="section-index-list">
+                                <!-- Section cards populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Saved Plans History -->
+                        <div id="tpv-history-section" style="display:none; margin-top:20px;">
+                            <h4 style="font-size:14px;font-weight:600;color:#2c3e50;margin-bottom:12px;">📋 Saved Plans</h4>
+                            <div id="tpv-history-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Section Content Display -->
+                    <div id="tpv-display-area" class="tp-card" style="min-height: 500px; display: none; position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                        <!-- Horizontal Section Toggles -->
+                        <div id="tpv-section-toggles">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <div id="tpv-content" class="premium-plan-content" contenteditable="true" style="flex: 1; overflow-y: auto; padding: 40px;">
+                            <!-- Section content shown here when clicked -->
+                        </div>
+
+                        <!-- Actions Area -->
+                        <div id="tpv-save-container" class="save-btn-container" style="display:none;">
+                            <div style="display:flex; gap:15px; align-items:center;">
+                                <span style="font-size:12px; color:#64748b; font-style:italic;">Manual edits are allowed. Click below to finalize.</span>
+                                
+                                <!-- Workspace Dictation Button -->
+                                <button id="workspace-mic-btn" class="mic-tool-btn" onclick="toggleWorkspaceMic()" title="Dictate changes">
+                                    <span class="mic-icon">🎤</span>
+                                    <span id="workspace-mic-status" class="mic-status-text"></span>
+                                </button>
+
+                                <button class="btn btn-primary" onclick="confirmAndSaveTreatmentPlan()" style="padding: 10px 24px; font-weight: 700;">
+                                    Confirm & Save Protocol
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="tpv-actions" class="tpv-footer-actions" style="display:none; border-top: 1px dashed #cbd5e1; background: #f8fafc;">
+                            <button class="btn btn-secondary" onclick="generateProfessionalPDF()">Print Protocol</button>
+                            <button class="btn btn-secondary" onclick="exportToEMR()">Export to EMR</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State (shown during generation) -->
+                    <div id="tpv-loading-state" class="tp-card tpv-loading-overlay" style="display:none;">
+                        <div class="tpv-loader-content">
+                            <div class="tpv-spinner"></div>
+                            <div class="tpv-loader-title">Generating Treatment Plan</div>
+                            <p id="tpv-loader-status" class="tpv-loader-subtitle">Analyzing patient clinical records...</p>
+                            <div class="sc-progress" style="width:200px;margin-top:16px;"><div id="tpv-loader-progress" class="sc-progress-fill"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="tpv-empty-state" class="tp-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 500px; color: #7f8c8d; text-align: center;">
+                        <span style="font-size: 40px; margin-bottom: 20px;">📋</span>
+                        <p>Select a patient to view their clinical treatment plan.</p>
+                    </div>
+                </div>
+
+                <!-- FLOATING AI CHATBOT -->
+                <div id="floating-chat-container" class="floating-chat-container">
+                    <button id="floating-chat-toggle" class="floating-chat-btn" onclick="toggleFloatingChat()">
+                        <span class="chat-icon-container">
+                            <span class="chat-indicator-dot"></span>
+                            🤖
+                        </span>
+                        <span id="floating-chat-label">Clinical Assistant</span>
+                    </button>
+                    
+                    <div id="floating-chat-box" class="floating-chat-box">
+                        <div class="chatbot-header">
+                            <div class="chatbot-header-row">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="bot-avatar">🤖</div>
+                                    <div>
+                                        <h2 style="margin:0; font-size:14px; display:flex; align-items:center; gap:8px;">
+                                            Clinical Assistant 
+                                            <span id="chat-session-badge" style="display:none; background:rgba(255,255,255,0.15); font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"></span>
+                                        </h2>
+                                        <div class="bot-status" id="chat-bot-status">Online · Patient-Aware</div>
+                                    </div>
+                                </div>
+                                <button class="chatbot-back-btn" onclick="toggleFloatingChat()">✕</button>
+                            </div>
+                        </div>
+
+                        <div class="chatbot-messages" id="tpv-chat-messages">
+                            <!-- Smart Welcome Card -->
+                            <div class="welcome-card" id="chat-welcome-card">
+                                <div class="wc-header">Hello Doctor, I am your clinical assistant.</div>
+                                <p class="wc-text" id="chat-welcome-text">Select a patient to begin analysis. I have access to all assessments and transcripts.</p>
+                                
+                                <div class="suggested-prompts">
+                                    <div class="sp-label">Quick Actions:</div>
+                                    <div class="sp-grid">
+                                        <button class="sp-chip" onclick="handleQuickPrompt('Summarize Case')">📋 Summarize Case</button>
+                                        <button class="sp-chip" onclick="handleQuickPrompt('Identify Risks')">⚠️ Risks</button>
+                                        <button class="sp-chip" onclick="handleQuickPrompt('Home Exercises')">🏠 Home Exercises</button>
+                                        <button class="sp-chip" onclick="handleQuickPrompt('Red Flags')">🚩 Red Flags</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Typing Indicator -->
+                        <div id="chat-typing" class="typing-indicator" style="display:none;">
+                            <span></span><span></span><span></span>
+                        </div>
+
+                        <div class="chatbot-input">
+                            <!-- Chatbot Mic Button -->
+                            <button id="chat-mic-btn" class="chat-mic-btn" onclick="toggleChatMic()" title="Voice input">
+                                <span id="chat-mic-icon">🎤</span>
+                            </button>
+                            
+                            <input type="text" id="tpv-chat-input" placeholder="Ask or speak to your assistant..." onkeydown="if(event.key==='Enter')sendClinicalChat()">
+                            <button onclick="sendClinicalChat()" class="chat-send-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Mini Recording Indicator -->
+                        <div id="chat-record-status" class="recording-bar-mini" style="display:none;">
+                            <div class="pulse-dot red"></div>
+                            <span id="chat-record-timer">00:00</span>
+                            <span style="font-size: 10px; font-weight: 600;">Listening...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- APPOINTMENTS -->
+            <div id="appointments" class="section">
+                <div class="section-title">Booking system</div>
+                <div class="grid2">
+                    <div class="card-white">
+                        <form id="appt-book-form">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label style="margin-bottom:0">Select patient</label>
+                                <button type="button" class="btn-link" onclick="refreshPatientList()"
+                                    style="font-size:11px; color:var(--color-primary);">🔄 Refresh List</button>
+                            </div>
+                            <select id="appt-patient-select" required style="margin-top:5px">
+                                <option value="">— Select registered patient —</option>
+                            </select>
+                            <label>Date</label><input type="date" id="appt-date" required>
+                            <label>Time</label><input type="time" id="appt-time" required>
+                            <div id="booking-status" style="margin-top:10px; font-size:12px; display:none;"></div>
+                            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px">Book
+                                Appointment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN -->
+            <div id="admin" class="section">
+                <div class="section-title">Clinic Administration</div>
+                <div class="msg">This area is restricted to Admin users only.</div>
+                <div class="grid2">
+                    <div class="card-white">
+                        <h4>Manage Staff</h4>
+                        <div id="admin-user-list">Fetching users...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PT PANEL (Same as before) -->
+    <div class="pt-panel-overlay" id="pt-overlay" onclick="closePTPanel()"></div>
+    <div class="pt-panel" id="pt-panel">
+        <div class="pt-panel-header" style="background: #2c3e50; color: white; display:flex; justify-content:space-between; align-items:center; padding: 16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px;">🤖</span>
+                <h2 style="font-size:16px; margin:0;">Physical Therapy Assistant</h2>
+            </div>
+            <button class="pt-panel-close" onclick="closePTPanel()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="pt-panel-body" style="background: #f8f9fa; padding: 20px;">
+            
+            <!-- SECTION: AUDIO INPUT -->
+            <div class="pt-section-card" style="background: white; border-radius:12px; border:1px solid #edf2f7; padding:15px; margin-bottom:20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#4a5568; margin-bottom:12px;">
+                    <span>🎙️</span> Audio Input
+                </div>
+                <div id="audio-mode-upload" class="audio-mode-content active">
+                    <div class="pt-upload-zone" onclick="document.getElementById('pt-audio-file').click()" style="border: 2px dashed #e2e8f0; border-radius:12px; padding:30px; text-align:center; cursor:pointer; background:#f9fafb; transition:all 0.2s;">
+                        <div style="font-size:32px; margin-bottom:10px;">📂</div>
+                        <div style="font-size:13px; font-weight:600; color:#2d3748;">Click to upload audio file</div>
+                        <div style="font-size:11px; color:#a0aec0; margin-top:4px;">Supports MP3, WAV, M4A — max 50 MB</div>
+                    </div>
+                    <input type="file" id="pt-audio-file" style="display:none" onchange="handlePTAudioUpload(this)">
+                </div>
+                <div id="pt-audio-status" style="display:none; margin-top:12px; padding:10px; background:#f0fff4; border:1px solid #c6f6d5; border-radius:8px; color:#22543d; font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                    <span>✅</span> <span id="pt-audio-name">File ready</span>
+                </div>
+            </div>
+
+            <!-- SECTION: SPEECH-TO-NOTES -->
+            <div class="pt-section-card" style="background: white; border-radius:12px; border:1px solid #edf2f7; padding:15px; margin-bottom:20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#4a5568; margin-bottom:12px;">
+                    <span>📝</span> Speech-to-Notes Conversion
+                </div>
+                <!-- Integrated Speech-to-Notes Box -->
+                <div class="pt-notes-container" style="position: relative; margin-top: 10px;">
+                    <textarea id="pt-notes" style="font-size:13px; color:#2d3748; line-height:1.6; background:#ffffff; padding:16px; padding-bottom: 60px; border-radius:16px; min-height:200px; width:100%; border:2px solid #e2e8f0; font-family:inherit; resize:vertical; outline:none; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); transition:all 0.2s ease;" onfocus="this.style.borderColor='#3182ce'; this.style.boxShadow='0 0 0 3px rgba(49,130,206,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.05)'" placeholder="Type here, upload a file, or use the mic button to add notes..."></textarea>
+                    
+                    <!-- Integrated Status Bar (Hidden by default) -->
+                    <div id="pt-record-status" style="display:none; position: absolute; bottom: 12px; left: 12px; right: 70px; height: 40px; background: rgba(247, 250, 252, 0.9); backdrop-filter: blur(4px); border: 1px solid #edf2f7; border-radius: 12px; align-items: center; padding: 0 15px; gap: 12px; z-index: 5; animation: slideUp 0.3s ease;">
+                        <div style="width: 8px; height: 8px; background: #e53e3e; border-radius: 50%; animation: pulse 1s infinite;"></div>
+                        <div id="inline-record-timer" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #e53e3e; min-width: 45px;">00:00</div>
+                        <div style="flex: 1; height: 24px;">
+                            <canvas id="waveform-canvas" style="width: 100%; height: 24px;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Floating Record Button -->
+                    <button id="inline-record-btn" onclick="toggleInlineRecording()" style="position: absolute; bottom: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; background: #2c3e50; border: none; color: white; font-size: 18px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        <span id="inline-record-icon">🎤</span>
+                    </button>
+                    
+                    <!-- Hidden elements for state reference -->
+                    <div id="inline-record-label" style="display:none;">Ready to Record</div>
+                    <div id="record-glow" style="display:none;"></div>
+                </div>
+
+                <div id="pt-panel-actions" style="margin-top: 15px; display:flex; gap:12px;">
+                    <button type="button" class="btn btn-primary" onclick="saveAudioAssessment()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding: 12px; font-weight: 700;">
+                        <span>💾</span> Save assessment
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="generateProfessionalPDF()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding: 12px; font-weight: 700;">
+                        <span>🖨️</span> Print form
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PATIENT VIEW PANEL -->
+    <div class="view-overlay" id="view-overlay" onclick="closeViewPanel(event)">
+        <div class="view-panel" id="view-panel">
+            <div class="view-panel-header">
+                <div class="view-avatar" id="vp-avatar">?</div>
+                <div class="view-patient-info">
+                    <h2 id="vp-name">Patient Name</h2>
+                    <p id="vp-meta">--</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button id="vp-edit-btn" class="a-btn" onclick="togglePatientEdit(true)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">Edit Profile</button>
+                    <button class="view-close-btn" onclick="closeViewPanel()">&#10005;</button>
+                </div>
+            </div>
+            <div class="view-panel-body">
+                <div class="vp-section">
+                    <div class="vp-section-title">Patient Details</div>
+                    <div class="vp-grid">
+                        <div class="vp-field">
+                            <div class="vp-field-lbl">Date of Birth</div>
+                            <div class="vp-field-val" id="vp-dob">--</div>
+                            <input type="date" id="vp-edit-dob" class="reg-input" style="display:none; width:100%">
+                        </div>
+                        <div class="vp-field">
+                            <div class="vp-field-lbl">Gender</div>
+                            <div class="vp-field-val" id="vp-gender">--</div>
+                            <select id="vp-edit-gender" class="reg-input" style="display:none; width:100%">
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="vp-field">
+                            <div class="vp-field-lbl">Contact</div>
+                            <div class="vp-field-val" id="vp-phone">--</div>
+                            <input type="tel" id="vp-edit-phone" class="reg-input" style="display:none; width:100%">
+                        </div>
+                        <div class="vp-field">
+                            <div class="vp-field-lbl">Occupation</div>
+                            <div class="vp-field-val" id="vp-occ">--</div>
+                            <input type="text" id="vp-edit-occ" class="reg-input" style="display:none; width:100%">
+                        </div>
+                        <div class="vp-field" style="grid-column: 1/-1;">
+                            <div class="vp-field-lbl">Address</div>
+                            <div class="vp-field-val" id="vp-address">--</div>
+                            <input type="text" id="vp-edit-address" class="reg-input" style="display:none; width:100%">
+                        </div>
+                    </div>
+                </div>
+                <!-- EDIT ACTIONS -->
+                <div id="vp-edit-actions" style="display:none; padding:0 20px 20px 20px; gap:8px; justify-content: flex-end;">
+                    <button class="skip-btn" onclick="togglePatientEdit(false)" style="margin:0">Cancel</button>
+                    <button class="done-btn" onclick="savePatientProfile()" style="margin:0">Save Changes</button>
+                </div>
+
+                <div class="vp-section">
+                    <div class="vp-section-title">Medical History</div>
+                    
+                    <!-- VIEW MODE -->
+                    <div id="vp-medical-view">
+                        <div class="vp-grid">
+                            <div class="vp-field" style="grid-column: 1/-1;">
+                                <div class="vp-field-lbl">Known conditions (check all that apply)</div>
+                                <div class="vp-field-val" id="vp-history-conditions">--</div>
+                            </div>
+                            <div class="vp-field">
+                                <div class="vp-field-lbl">Current medications</div>
+                                <div class="vp-field-val" id="vp-history-meds">--</div>
+                            </div>
+                            <div class="vp-field">
+                                <div class="vp-field-lbl">Allergies</div>
+                                <div class="vp-field-val" id="vp-history-allergies">--</div>
+                            </div>
+                            <div class="vp-field" style="grid-column: 1/-1;">
+                                <div class="vp-field-lbl">Previous injuries or surgeries</div>
+                                <div class="vp-field-val" id="vp-history-injuries">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDIT MODE -->
+                    <div id="vp-medical-edit" style="display:none; padding: 10px 0;">
+                        <label style="font-size:12px; margin-bottom:8px; display:block; color:var(--color-text-secondary);">Known conditions (check all that apply)</label>
+                        <div class="conditions-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Hypertension"> Hypertension</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Diabetes"> Diabetes</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Heart Disease"> Heart Disease</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Asthma/COPD"> Asthma/COPD</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Arthritis"> Arthritis</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Neurological"> Neurological</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" value="Thyroid"> Thyroid</label>
+                            <label class="check-item"><input type="checkbox" name="edit-condition" id="vp-edit-cond-other-check" value="Other"> Other</label>
+                        </div>
+                        <div id="vp-edit-cond-other-wrapper" style="display:none; margin-bottom:12px;">
+                            <input type="text" id="vp-edit-cond-other-val" placeholder="Mention other condition" class="reg-input" style="font-size:12px; padding:8px;">
+                        </div>
+
+                        <div class="vp-grid">
+                            <div class="vp-field">
+                                <div class="vp-field-lbl">Current medications</div>
+                                <input type="text" id="vp-edit-meds" class="reg-input" style="width:100%">
+                            </div>
+                            <div class="vp-field">
+                                <div class="vp-field-lbl">Allergies</div>
+                                <input type="text" id="vp-edit-allergies" class="reg-input" style="width:100%">
+                            </div>
+                        </div>
+                        <div class="vp-field" style="margin-top:10px;">
+                            <div class="vp-field-lbl">Previous injuries or surgeries</div>
+                            <textarea id="vp-edit-injuries" class="reg-input" style="width:100%; min-height:60px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vp-section">
+                    <div class="vp-section-title">Session History</div>
+                    <div id="vp-history-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- UNIFIED SCHEDULER MODAL -->
+
+    <div class="sched-overlay" id="sched-overlay">
+        <div class="sched-modal">
+            <div class="sched-header">
+                <h2 id="sched-header-title">Schedule Patient Appointment</h2>
+                <p id="sched-header-sub">Choose date and available session time.</p>
+            </div>
+            <div class="sched-body">
+                <div>
+                    <div class="sched-section-title">1. Select Date</div>
+                    <div class="cal-wrapper">
+                        <div class="cal-header">
+                            <button type="button" class="cal-nav" onclick="changeMonth(-1)">&#8249;</button>
+                            <div class="cal-month" id="cal-month-yr">--</div>
+                            <button type="button" class="cal-nav" onclick="changeMonth(1)">&#8250;</button>
+                        </div>
+                        <div class="cal-grid" id="cal-grid"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="sched-section-title">2. Select Time</div>
+                    <div class="time-slot-grid" id="time-slot-grid"></div>
+                </div>
+
+                <div>
+                    <div class="sched-section-title">3. Set Status</div>
+                    <div class="status-pill-row" id="status-pill-row">
+                        <div class="status-pill confirmed active" onclick="selectStatus('Confirmed')">✔ Confirmed</div>
+                        <div class="status-pill pending" onclick="selectStatus('Pending')">⏳ Pending</div>
+                        <div class="status-pill cancelled" onclick="selectStatus('Cancelled')">✖ Cancelled</div>
+                    </div>
+                    <div id="status-hint" style="font-size:11px; color:var(--color-text-secondary); margin-top:8px; min-height:16px;"></div>
+                </div>
+
+                <div>
+                    <div class="sched-section-title">4. Session Number</div>
+                    <select id="sched-session-number" onchange="updateSummary()" class="reg-input" style="width:100%; margin-top:6px; padding:10px; border-radius:8px; border:1px solid var(--color-border-tertiary); font-size:13px;">
+                        <option value="1">Session 1 — Initial Assessment</option>
+                        <option value="2">Session 2</option>
+                        <option value="3">Session 3</option>
+                        <option value="4">Session 4</option>
+                        <option value="5">Session 5</option>
+                        <option value="6">Session 6</option>
+                        <option value="7">Session 7</option>
+                        <option value="8">Session 8</option>
+                        <option value="9">Session 9</option>
+                        <option value="10">Session 10</option>
+                    </select>
+                </div>
+
+                <div class="sched-summary" id="sched-summary" style="display:none;">
+                    <div class="s-title">Appointment Summary</div>
+                    <div class="s-data"><span class="icon">👤</span> <span id="s-name">--</span></div>
+                    <div class="s-data"><span class="icon">📅</span> <span id="s-datetime">--</span></div>
+                    <div class="s-data"><span class="icon">📌</span> <span id="s-status">--</span></div>
+                    <div class="s-data"><span class="icon">🔢</span> <span id="s-session">Session 1</span></div>
+                </div>
+            </div>
+            <div class="sched-footer">
+                <button class="btn-outline" onclick="handleSchedBack()">Back</button>
+                <button class="btn btn-primary" onclick="handleSchedDone()" id="sched-done-btn" disabled>Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/api.js?v=10"></script>
+    <script src="js/app.js?v=10"></script>
+    <script src="js/scheduler-fix.js?v=10"></script>
+    <script src="js/android.js?v=3"></script>
+
+    <!-- TRASH BIN FAB -->
+    <div id="trash-fab" class="trash-fab" onclick="toggleTrashDrawer()">
+        <span class="trash-icon">🗑️</span>
+        <div id="trash-badge" class="trash-badge">0</div>
+    </div>
+
+    <!-- TRASH DRAWER -->
+    <div class="view-overlay" id="trash-overlay" onclick="closeTrashDrawer(event)">
+        <div class="view-panel trash-panel" id="trash-panel">
+            <div class="view-panel-header" style="background: #34495e;">
+                <div class="view-avatar" style="background: rgba(255,255,255,0.15);">🗑️</div>
+                <div class="view-patient-info">
+                    <h2>Appointment Trash Bin</h2>
+                    <p>Recently cancelled sessions (deletes in 1hr)</p>
+                </div>
+                <button class="view-close-btn" onclick="closeTrashDrawer()">✕</button>
+            </div>
+            <div class="view-panel-body">
+                <div id="trash-list-container">
+                    <!-- Cancelled items will be rendered here -->
+                    <div style="text-align: center; color: var(--color-text-secondary); padding: 40px 10px;">
+                        <div style="font-size: 24px; margin-bottom: 8px;">✨</div>
+                        <div style="font-size: 13px;">Trash is empty.</div>
+                    </div>
+                </div>
+            </div>
+            
+        !-- EXERCISES -->
+        div id="exercise" class="section">
+           <div class="section-title">Exercises</div>
+           <div class="msg">Exercise library Coming in next update.</div>
+           <div class="card-white" style="padding:24px; text-align:center; color:var(--color-text-secondary);">
+               <div style="font-size:32px; margin-bottom:8px;">🏋️</div>
+               <div style="font-size:14px;">Coming soon</div>
+           </div>
+        </div>
+
+<!-- PROGRESS -->
+            <div id="progress" class="section">
+                <div class="section-title">Progress</div>
+                <div class="msg">Patient progress tracking Coming in next update.</div>
+                <div class="card-white" style="padding:24px; text-align:center; color:var(--color-text-secondary);">
+                    <div style="font-size:32px; margin-bottom:8px;">📈</div>
+                    <div style="font-size:14px;">Coming soon</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>

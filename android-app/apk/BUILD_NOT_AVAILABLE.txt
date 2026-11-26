@@ -1,0 +1,4 @@
+The debug APK has not been generated in this environment.
+Reason: Android SDK is not installed and Gradle 8.9 could not be downloaded because outbound DNS/network access is unavailable.
+Build on a machine with Android Studio + Android SDK Platform 35 using: ./gradlew assembleDebug
+Then copy app/build/outputs/apk/debug/app-debug.apk to this folder as MoveBetterPhysio-debug.apk.

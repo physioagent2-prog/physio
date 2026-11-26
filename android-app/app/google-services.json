@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "211694677119",
+    "project_id": "movebetterphysio-81990",
+    "storage_bucket": "movebetterphysio-81990.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211694677119:android:11ff3777b00428922da34a",
+        "android_client_info": {
+          "package_name": "com.movebetter.physio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApqRvVaVGGICpaxzVuIeOkuM44ywoAtIo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
